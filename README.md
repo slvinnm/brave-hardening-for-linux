@@ -1,49 +1,63 @@
 # Brave Hardening for Linux
 
-Kumpulan policy terkelola untuk Brave Browser di Omarchy / Arch Linux. File JSON sengaja dipisahkan dari script instalasi, sehingga nilai policy dapat diedit tanpa mengubah mekanisme install/uninstall.
+A managed policy set for Brave Browser on Omarchy and Arch Linux. The policy JSON is kept separate from the installation scripts so users can customize browser behavior without modifying the installer.
 
-## Isi konfigurasi
+## Included policies
 
-| Policy | Nilai | Tujuan |
+| Policy | Value | Purpose |
 |---|---:|---|
-| `BraveRewardsDisabled` | `true` | Menonaktifkan Brave Rewards |
-| `BraveWalletDisabled` | `true` | Menonaktifkan Brave Wallet |
-| `BraveVPNDisabled` | `true` | Menonaktifkan integrasi Brave VPN |
-| `BraveAIChatEnabled` | `false` | Menonaktifkan Leo |
-| `BraveNewsDisabled` | `true` | Menonaktifkan Brave News |
-| `BravePlaylistEnabled` | `false` | Menonaktifkan Playlist |
-| `PasswordManagerEnabled` | `false` | Mematikan password manager bawaan karena menggunakan pengelola eksternal |
-| `BraveP3AEnabled` | `"Disabled"` | Menonaktifkan P3A |
-| `BraveStatsPingEnabled` | `0` | Menonaktifkan daily/statistics ping |
-| `BraveWebDiscoveryEnabled` | `0` | Menonaktifkan Web Discovery Project |
-| `MetricsReportingEnabled` | `false` | Menonaktifkan pelaporan metrik Chromium |
+| `BraveRewardsDisabled` | `true` | Disables Brave Rewards |
+| `BraveWalletDisabled` | `true` | Disables Brave Wallet |
+| `BraveVPNDisabled` | `true` | Disables Brave VPN integration |
+| `BraveAIChatEnabled` | `false` | Disables Brave Leo |
+| `BraveNewsDisabled` | `true` | Disables Brave News |
+| `BraveTalkDisabled` | `"Enabled"` | Disables Brave Talk |
+| `BravePlaylistEnabled` | `false` | Disables Brave Playlist |
+| `TorDisabled` | `true` | Disables Tor windows |
+| `PasswordManagerEnabled` | `false` | Disables the built-in password manager |
+| `BraveP3AEnabled` | `"Disabled"` | Disables Privacy-Preserving Product Analytics |
+| `BraveStatsPingEnabled` | `0` | Disables Brave's statistics ping |
+| `BraveWebDiscoveryEnabled` | `0` | Disables the Web Discovery Project |
+| `UrlKeyedAnonymizedDataCollectionEnabled` | `false` | Disables URL-keyed anonymized data collection |
+| `SafeBrowsingExtendedReportingEnabled` | `false` | Disables additional Safe Browsing reporting |
+| `MetricsReportingEnabled` | `false` | Disables Chromium metrics reporting |
 
-Policy Brave memakai tipe nilai yang berbeda-beda. Jangan mengubah semuanya menjadi `true`/`false`; khususnya `BraveP3AEnabled` memakai string `"Disabled"`, sedangkan Stats Ping dan Web Discovery memakai angka `0` menurut dokumentasi Brave.
+Policy values do not all use the same data type. For example, `BraveP3AEnabled` accepts the string `"Enabled"` or `"Disabled"`, while `BraveStatsPingEnabled` and `BraveWebDiscoveryEnabled` use numeric values. Do not copy Windows registry DWORD values into the Linux JSON file without checking the policy's Linux/JSON type.
 
-## Persyaratan
+## ⚠️ Warning: Built-in Password Manager is disabled
 
-- Brave Browser native terpasang (bukan hanya Flatpak).
-- `python3` untuk memvalidasi JSON.
-- `curl` saat menjalankan installer langsung dari URL.
-- `sudo` untuk memasang policy ke `/etc` dan menyimpan backup di `/var/lib`.
+This configuration sets `PasswordManagerEnabled` to `false`. As a result, Brave's built-in password manager is disabled by policy.
 
-Script akan menolak instalasi jika yang terdeteksi hanya Brave Flatpak. Brave Flatpak berada di sandbox dan tidak boleh diasumsikan membaca policy host di `/etc/brave/policies/managed/`.
+- Make sure you already use another password manager before installing this policy.
+- If you want to keep using Brave's built-in password manager, open `brave-policy.json` and either remove the `"PasswordManagerEnabled": false,` line or change its value to `true`.
+- Save the file and run the installer again. Then reload policies at `brave://policy` and restart Brave if needed.
 
-## Instalasi
+**Do not install this configuration without reviewing this setting first.** The installer does not migrate, export, or back up passwords stored in Brave.
 
-**Metode cepat (tanpa clone repository):**
+## Requirements
+
+- A native Brave Browser installation (not Flatpak-only).
+- `python3` to validate the policy JSON.
+- `curl` when running the installer directly from a URL.
+- `sudo` to install policies under `/etc` and store backups under `/var/lib`.
+
+The installer refuses to proceed if it detects only Brave Flatpak. Flatpak runs in a sandbox, so this project does not assume that a host policy directory under `/etc/brave/policies/managed/` will be read by the Flatpak build.
+
+## Installation
+
+### Quick install (no repository clone)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/main/install.sh | bash
 ```
 
-Untuk menggunakan versi rilis tertentu, pin ref ke tag rilis. Contoh setelah tag `v1.0.0` tersedia:
+To install from a specific release tag, pin the script and policy source to that tag. For example, after publishing `v1.0.0`:
 
 ```bash
 OMARCHY_BRAVE_POLICY_REF=v1.0.0 bash <(curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/v1.0.0/install.sh)
 ```
 
-**Metode clone / instalasi lokal:**
+### Install from a local clone
 
 ```bash
 git clone https://github.com/slvinnm/brave-hardening-for-linux.git
@@ -52,20 +66,20 @@ chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-Script lokal menggunakan `brave-policy.json` yang berada di direktori yang sama. Jika dijalankan melalui `curl | bash`, script mengunduh JSON dari repository. Variabel `OMARCHY_BRAVE_POLICY_REF` dapat digunakan untuk memilih branch atau tag sumber JSON.
+When run from a local clone, the installer uses the adjacent `brave-policy.json`. When run through `curl | bash`, it downloads the policy JSON from this repository. Set `OMARCHY_BRAVE_POLICY_REF` to select a branch or tag for the downloaded policy.
 
-> Catatan keamanan: `curl | bash` mengeksekusi script yang diunduh. Periksa isi `install.sh` terlebih dahulu jika ingin meninjau perubahan yang akan dilakukan.
+> **Security note:** Piping a remote script to Bash executes code from that URL. Review `install.sh` before running it if you want to inspect the changes first.
 
-Tutup lalu buka kembali Brave, atau restart Brave jika masih berjalan.
+Restart Brave after installation so the browser loads the managed policies.
 
-## Verifikasi
+## Verify policies
 
-Buka alamat berikut di Brave:
+Open these pages in Brave:
 
-- `brave://policy` — klik **Reload policies**, lalu pastikan policy terdaftar dan tidak memiliki error.
-- `brave://management` — policy lokal dapat membuat browser menampilkan status dikelola.
+- `brave://policy` — click **Reload policies** and check that the policies appear without errors.
+- `brave://management` — shows whether Brave detects managed policies.
 
-Policy hanya diterapkan setelah browser memuatnya kembali. Jika satu policy tidak muncul atau berstatus error, periksa versi Brave dan tipe nilai policy.
+If a policy is missing or reports an error, check your Brave version and the expected policy value type. Some Brave-specific policies are only available in newer browser versions.
 
 ## Uninstall / rollback
 
@@ -73,27 +87,31 @@ Policy hanya diterapkan setelah browser memuatnya kembali. Jika satu policy tida
 curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/main/uninstall.sh | bash
 ```
 
-Atau jalankan `./uninstall.sh` dari hasil clone repository.
+Or run `./uninstall.sh` from your local clone.
 
-Script hanya menghapus file policy milik project ini. Jika file dengan nama tujuan sudah ada sebelum instalasi pertama, script menyimpan salinan aslinya di `/var/lib/omarchy-brave-policy/` dan mengembalikannya saat uninstall.
+The uninstaller removes only this project's policy file. If a file already existed at the target path before the first installation, the installer stores a copy under `/var/lib/omarchy-brave-policy/` and the uninstaller restores it.
 
-Script tidak menghapus file policy lain, tidak menghapus direktori yang masih berisi file lain, dan tidak mengubah profil atau data browsing Brave.
+The scripts do not remove other policy files, do not remove non-empty directories, and do not modify your Brave profile or browsing data.
 
-## Kustomisasi
+## Customize policies
 
-Edit `brave-policy.json`, validasi dengan:
+Edit `brave-policy.json` before installation. Validate the JSON with:
 
 ```bash
 python3 -m json.tool brave-policy.json
 ```
 
-Kemudian jalankan kembali `./install.sh` dan reload policy di `brave://policy`.
+Then run `./install.sh` again and reload policies at `brave://policy`.
 
-## Batasan
+## Scope and limitations
 
-- Policy ini tidak mengatur seluruh preferensi privasi browser. Atur Shields, fingerprinting protection, Safe Browsing, dan site permissions melalui GUI Brave.
-- Mematikan password manager bawaan tidak memasang atau mengonfigurasi password manager eksternal.
-- Policy mengunci beberapa fitur sampai policy dihapus; ini berbeda dari sekadar menyembunyikan ikon toolbar.
-- Brave memperbarui daftar policy dan tipe nilainya dari waktu ke waktu. Rujuk dokumentasi resmi sebelum menambah policy baru.
+- This project does not configure every browser privacy setting. Configure Shields, fingerprinting protection, Safe Browsing, and site permissions separately in Brave.
+- Disabling the built-in password manager does not install or configure an alternative password manager.
+- Managed policies enforce settings; this is not the same as hiding toolbar buttons.
+- Brave may change policy names, accepted values, or minimum supported versions. Review the official documentation before adding or changing policies.
 
-Dokumentasi: https://support.brave.app/hc/en-us/articles/360039248271-Group-Policy
+## References
+
+- [Brave Group Policy documentation](https://support.brave.app/hc/en-us/articles/360039248271-Group-Policy)
+- [Chromium Enterprise Policy List](https://chromeenterprise.google/policies/)
+
