@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-POLICY_SOURCE="$SCRIPT_DIR/brave-policy.json"
+SCRIPT_PATH="${BASH_SOURCE[0]:-}"
+SCRIPT_DIR=""
+POLICY_SOURCE=""
+
+# BASH_SOURCE[0] is empty when this script is executed through stdin (curl | bash).
+# Use the adjacent policy file only when install.sh is run from a local checkout.
+if [[ -n "$SCRIPT_PATH" && -f "$SCRIPT_PATH" ]]; then
+  SCRIPT_DIR="$(cd -- "$(dirname -- "$SCRIPT_PATH")" && pwd)"
+  POLICY_SOURCE="$SCRIPT_DIR/brave-policy.json"
+fi
 POLICY_REF="${BRAVE_POLICY_REF:-main}"
 POLICY_URL="https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/${POLICY_REF}/brave-policy.json"
 TEMP_POLICY=""
