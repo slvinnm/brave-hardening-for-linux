@@ -12,5 +12,7 @@
   "BraveStatsPingEnabled": false,
   "BraveWebDiscoveryEnabled": false,
   "UrlKeyedAnonymizedDataCollectionEnabled": false,
-  "MetricsReportingEnabled": false
+  "MetricsReportingEnabled": false,
+  "CloudReportingEnabled": false,
+  "SafeBrowsingSurveysEnabled": false
 }
