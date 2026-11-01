@@ -14,24 +14,24 @@ die()  { printf '[ERROR] %s\n' "$*" >&2; exit 1; }
 
 SUDO=()
 if (( EUID != 0 )); then
-  command -v sudo >/dev/null 2>&1 || die "sudo tidak ditemukan."
-  sudo -v || die "Gagal mendapatkan izin sudo."
+  command -v sudo >/dev/null 2>&1 || die "sudo was not found."
+  sudo -v || die "Failed to obtain sudo privileges."
   SUDO=(sudo)
 fi
 
 if ! "${SUDO[@]}" test -f "$STATE_MARKER"; then
-  warn "Tidak menemukan status instalasi milik project ini. Tidak ada perubahan dilakukan."
+  warn "No installation state for this project was found. No changes were made."
   exit 0
 fi
 
 if "${SUDO[@]}" test -f "$ORIGINAL_EXISTS_MARKER"; then
-  "${SUDO[@]}" test -f "$ORIGINAL_BACKUP" || die "Backup policy asli tidak ditemukan di $ORIGINAL_BACKUP. File tidak dihapus agar konfigurasi sebelumnya tidak hilang."
+  "${SUDO[@]}" test -f "$ORIGINAL_BACKUP" || die "The original policy backup was not found at $ORIGINAL_BACKUP. The target file was left untouched to avoid losing the previous configuration."
   "${SUDO[@]}" install -d -m 0755 "$POLICY_DIR"
   "${SUDO[@]}" install -m 0644 "$ORIGINAL_BACKUP" "$POLICY_FILE"
-  log "Policy sebelumnya berhasil dipulihkan: $POLICY_FILE"
+  log "The previous policy file was restored: $POLICY_FILE"
 else
   "${SUDO[@]}" rm -f -- "$POLICY_FILE"
-  log "Policy milik project ini berhasil dihapus."
+  log "The policy file installed by this project was removed."
 fi
 
 "${SUDO[@]}" rm -f -- "$STATE_MARKER" "$ORIGINAL_EXISTS_MARKER" "$ORIGINAL_BACKUP"
@@ -39,7 +39,7 @@ fi
 "${SUDO[@]}" rmdir "$POLICY_DIR" 2>/dev/null || true
 
 if pgrep -x brave >/dev/null 2>&1 || pgrep -x brave-browser >/dev/null 2>&1; then
-  warn "Brave sedang berjalan. Restart Brave untuk menghapus policy dari sesi browser."
+  warn "Brave is running. Restart Brave to remove the policies from the browser session."
 else
-  log "Uninstall selesai. Buka Brave dan periksa brave://policy."
+  log "Uninstallation complete. Open Brave and check brave://policy."
 fi
