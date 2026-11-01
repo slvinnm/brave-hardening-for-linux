@@ -22,7 +22,6 @@ The project targets native Brave installations and uses Brave's managed policy d
 | `BraveWebDiscoveryEnabled` | `false` | Disables participation in the Brave Web Discovery Project |
 | `UrlKeyedAnonymizedDataCollectionEnabled` | `false` | Disables URL-keyed anonymized data collection |
 | `MetricsReportingEnabled` | `false` | Disables Chromium usage and crash-related metrics reporting |
-| `CloudReportingEnabled` | `false` | Disables cloud reporting to the Chrome Enterprise management service |
 | `SafeBrowsingSurveysEnabled` | `false` | Prevents users from receiving Safe Browsing-related surveys |
 
 ### Policy value types

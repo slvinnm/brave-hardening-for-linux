@@ -13,6 +13,5 @@
   "BraveWebDiscoveryEnabled": false,
   "UrlKeyedAnonymizedDataCollectionEnabled": false,
   "MetricsReportingEnabled": false,
-  "CloudReportingEnabled": false,
   "SafeBrowsingSurveysEnabled": false
 }
