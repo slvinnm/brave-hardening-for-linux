@@ -4,12 +4,16 @@
   "BraveVPNDisabled": true,
   "BraveAIChatEnabled": false,
   "BraveNewsDisabled": true,
+  "BraveTalkDisabled": "Enabled",
   "BravePlaylistEnabled": false,
+  "TorDisabled": true,
 
   "PasswordManagerEnabled": false,
 
   "BraveP3AEnabled": "Disabled",
   "BraveStatsPingEnabled": 0,
   "BraveWebDiscoveryEnabled": 0,
+  "UrlKeyedAnonymizedDataCollectionEnabled": false,
+  "SafeBrowsingExtendedReportingEnabled": false,
   "MetricsReportingEnabled": false
 }
