@@ -4,16 +4,13 @@
   "BraveVPNDisabled": true,
   "BraveAIChatEnabled": false,
   "BraveNewsDisabled": true,
-  "BraveTalkDisabled": "Enabled",
+  "BraveTalkDisabled": true,
   "BravePlaylistEnabled": false,
   "TorDisabled": true,
-
   "PasswordManagerEnabled": false,
-
-  "BraveP3AEnabled": "Disabled",
-  "BraveStatsPingEnabled": 0,
-  "BraveWebDiscoveryEnabled": 0,
+  "BraveP3AEnabled": false,
+  "BraveStatsPingEnabled": false,
+  "BraveWebDiscoveryEnabled": false,
   "UrlKeyedAnonymizedDataCollectionEnabled": false,
-  "SafeBrowsingExtendedReportingEnabled": false,
   "MetricsReportingEnabled": false
 }
