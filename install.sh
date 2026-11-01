@@ -17,19 +17,19 @@ log()  { printf '[INFO] %s\n' "$*"; }
 warn() { printf '[WARN] %s\n' "$*" >&2; }
 die()  { printf '[ERROR] %s\n' "$*" >&2; exit 1; }
 
-command -v python3 >/dev/null 2>&1 || die "python3 diperlukan untuk validasi JSON."
+command -v python3 >/dev/null 2>&1 || die "python3 is required to validate the policy JSON."
 
-# When invoked from a local checkout, use its adjacent JSON. When piped from
-# curl, fetch the policy from this repository (pin with OMARCHY_BRAVE_POLICY_REF).
+# Use the adjacent policy file for a local checkout. When this script is
+# piped from curl, download the policy from the selected repository ref.
 if [[ ! -f "$POLICY_SOURCE" ]]; then
-  command -v curl >/dev/null 2>&1 || die "curl diperlukan saat install.sh dijalankan tanpa file lokal."
+  command -v curl >/dev/null 2>&1 || die "curl is required when install.sh is run without a local policy file."
   TEMP_POLICY="$(mktemp)"
   trap '[[ -z "$TEMP_POLICY" ]] || rm -f -- "$TEMP_POLICY"' EXIT
-  curl -fsSL "$POLICY_URL" -o "$TEMP_POLICY" || die "Gagal mengunduh policy dari $POLICY_URL"
+  curl -fsSL "$POLICY_URL" -o "$TEMP_POLICY" || die "Failed to download policy from $POLICY_URL"
   POLICY_SOURCE="$TEMP_POLICY"
 fi
 
-python3 -m json.tool "$POLICY_SOURCE" >/dev/null || die "JSON policy tidak valid."
+python3 -m json.tool "$POLICY_SOURCE" >/dev/null || die "The policy JSON is invalid."
 
 # This project targets a native Brave installation. Flatpak is sandboxed and
 # should not be assumed to consume the host's /etc/brave policy directory.
@@ -62,24 +62,24 @@ done
 
 if (( native_package == 0 && native_command == 0 )); then
   if (( flatpak_installed == 1 )); then
-    die "Yang terdeteksi hanya Brave Flatpak. Policy host /etc/brave/policies/managed tidak dijamin berlaku untuk Flatpak. Install Brave native terlebih dahulu atau kelola policy Flatpak secara terpisah."
+    die "Only Brave Flatpak was detected. Policies under /etc/brave/policies/managed are not guaranteed to apply to Flatpak. Install native Brave or manage Flatpak policies separately."
   fi
-  die "Instalasi Brave native tidak terdeteksi. Pastikan Brave sudah terpasang."
+  die "A native Brave installation was not detected. Make sure Brave is installed."
 fi
 
 SUDO=()
 if (( EUID != 0 )); then
-  command -v sudo >/dev/null 2>&1 || die "sudo tidak ditemukan."
-  sudo -v || die "Gagal mendapatkan izin sudo."
+  command -v sudo >/dev/null 2>&1 || die "sudo was not found."
+  sudo -v || die "Failed to obtain sudo privileges."
   SUDO=(sudo)
 fi
 
 if pgrep -x brave >/dev/null 2>&1 || pgrep -x brave-browser >/dev/null 2>&1; then
-  warn "Brave sedang berjalan. Tutup dan buka kembali Brave setelah instalasi agar policy diterapkan."
+  warn "Brave is running. Close and reopen Brave after installation to apply the policies."
 fi
 
-# Record the pre-existing target only once. The state marker prevents a later
-# reinstall from accidentally backing up this project's own policy file.
+# Back up the original target only once. The state marker prevents a later
+# reinstall from backing up this project's own policy file.
 if ! "${SUDO[@]}" test -f "$STATE_MARKER"; then
   "${SUDO[@]}" install -d -m 0755 "$STATE_DIR"
 
@@ -88,7 +88,7 @@ if ! "${SUDO[@]}" test -f "$STATE_MARKER"; then
       "${SUDO[@]}" install -m 0644 "$POLICY_FILE" "$ORIGINAL_BACKUP"
     fi
     "${SUDO[@]}" touch "$ORIGINAL_EXISTS_MARKER"
-    log "Policy dengan nama tujuan sudah ada; salinan aslinya disimpan di $ORIGINAL_BACKUP"
+    log "An existing policy file was found. Its original copy was saved to $ORIGINAL_BACKUP"
   fi
 
   "${SUDO[@]}" touch "$STATE_MARKER"
@@ -97,6 +97,6 @@ fi
 "${SUDO[@]}" install -d -m 0755 "$POLICY_DIR"
 "${SUDO[@]}" install -m 0644 "$POLICY_SOURCE" "$POLICY_FILE"
 
-log "Policy berhasil dipasang: $POLICY_FILE"
-log "Buka brave://policy lalu klik Reload policies untuk memeriksa policy."
-log "Restart Brave agar seluruh perubahan diterapkan."
+log "Policies installed successfully: $POLICY_FILE"
+log "Open brave://policy and click Reload policies to verify them."
+log "Restart Brave to ensure all changes take effect."
