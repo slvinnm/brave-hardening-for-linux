@@ -8,23 +8,26 @@ The project targets native Brave installations and uses Brave's managed policy d
 
 | Policy | Value | Purpose |
 |---|---:|---|
-| `BraveRewardsDisabled` | `true` | Disables Brave Rewards |
-| `BraveWalletDisabled` | `true` | Disables Brave Wallet |
+| `BraveRewardsDisabled` | `true` | Disables Brave Rewards and its associated features |
+| `BraveWalletDisabled` | `true` | Disables the built-in Brave Wallet and related Web3 functionality |
 | `BraveVPNDisabled` | `true` | Disables Brave VPN integration |
-| `BraveAIChatEnabled` | `false` | Disables Brave Leo |
-| `BraveNewsDisabled` | `true` | Disables Brave News |
-| `BraveTalkDisabled` | `"Enabled"` | Disables Brave Talk |
+| `BraveAIChatEnabled` | `false` | Disables Brave Leo AI assistant |
+| `BraveNewsDisabled` | `true` | Disables the Brave News feed |
+| `BraveTalkDisabled` | `true` | Disables Brave Talk video conferencing |
 | `BravePlaylistEnabled` | `false` | Disables Brave Playlist |
-| `TorDisabled` | `true` | Disables Tor windows |
+| `TorDisabled` | `true` | Disables Tor private windows |
 | `PasswordManagerEnabled` | `false` | Disables the built-in password manager |
-| `BraveP3AEnabled` | `"Disabled"` | Disables Privacy-Preserving Product Analytics |
-| `BraveStatsPingEnabled` | `0` | Disables Brave's statistics ping |
-| `BraveWebDiscoveryEnabled` | `0` | Disables the Web Discovery Project |
+| `BraveP3AEnabled` | `false` | Disables Privacy-Preserving Product Analytics (P3A) |
+| `BraveStatsPingEnabled` | `false` | Disables Brave's daily usage statistics ping |
+| `BraveWebDiscoveryEnabled` | `false` | Disables participation in the Brave Web Discovery Project |
 | `UrlKeyedAnonymizedDataCollectionEnabled` | `false` | Disables URL-keyed anonymized data collection |
-| `SafeBrowsingExtendedReportingEnabled` | `false` | Disables additional Safe Browsing reporting |
-| `MetricsReportingEnabled` | `false` | Disables Chromium metrics reporting |
+| `MetricsReportingEnabled` | `false` | Disables Chromium usage and crash-related metrics reporting |
+| `CloudReportingEnabled` | `false` | Disables cloud reporting to the Chrome Enterprise management service |
+| `SafeBrowsingSurveysEnabled` | `false` | Prevents users from receiving Safe Browsing-related surveys |
 
-Policy values do not all use the same data type. For example, `BraveP3AEnabled` accepts the string `"Enabled"` or `"Disabled"`, while `BraveStatsPingEnabled` and `BraveWebDiscoveryEnabled` use numeric values. Do not copy Windows registry DWORD values into the Linux JSON file without checking the policy's Linux/JSON type.
+### Policy value types
+
+All policy values in this configuration use JSON boolean values (`true` or `false`).
 
 ## ⚠️ Warning: Built-in Password Manager is disabled
 
@@ -36,14 +39,6 @@ This configuration sets `PasswordManagerEnabled` to `false`. As a result, Brave'
 
 **Do not install this configuration without reviewing this setting first.** The installer does not migrate, export, or back up passwords stored in Brave.
 
-## Requirements
-
-- A native Brave Browser installation.
-- `python3` to validate the policy JSON.
-- `curl` when running the installer directly from a URL.
-- `sudo` to install policies under `/etc` and store backups under `/var/lib`.
-
-The installer checks for common native Brave package names on Arch Linux and common Brave executable names. On other distributions, make sure Brave is installed in a standard system location and its executable is available in `PATH`. Flatpak installations are not supported by this installer because the host policy directory is not guaranteed to apply inside the Flatpak sandbox.
 
 ## Installation
 
@@ -51,12 +46,6 @@ The installer checks for common native Brave package names on Arch Linux and com
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/main/install.sh | bash
-```
-
-To install from a specific release tag, pin the script and policy source to that tag. For example, after publishing `v1.0.0`:
-
-```bash
-BRAVE_POLICY_REF=v1.0.0 bash <(curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/v1.0.0/install.sh)
 ```
 
 ### Install from a local clone
@@ -96,16 +85,6 @@ The uninstaller removes only this project's policy file. If a file already exist
 The installer and uninstaller also recognize the previous project-specific policy and backup locations so an upgrade does not leave the old managed policy active.
 
 The scripts do not remove other policy files, do not remove non-empty directories, and do not modify your Brave profile or browsing data.
-
-## Customize policies
-
-Edit `brave-policy.json` before installation. Validate the JSON with:
-
-```bash
-python3 -m json.tool brave-policy.json
-```
-
-Then run `./install.sh` again and reload policies at `brave://policy`.
 
 ## Scope and limitations
 
