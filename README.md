@@ -1,6 +1,8 @@
 # Brave Hardening for Linux
 
-A managed policy set for Brave Browser on Omarchy and Arch Linux. The policy JSON is kept separate from the installation scripts so users can customize browser behavior without modifying the installer.
+A managed policy configuration for Brave Browser on Linux. The policy JSON is kept separate from the installation scripts so users can customize browser behavior without modifying the installer.
+
+The project targets native Brave installations and uses Brave's managed policy directory. It is not tied to a specific Linux distribution or desktop environment.
 
 ## Included policies
 
@@ -36,12 +38,12 @@ This configuration sets `PasswordManagerEnabled` to `false`. As a result, Brave'
 
 ## Requirements
 
-- A native Brave Browser installation (not Flatpak-only).
+- A native Brave Browser installation.
 - `python3` to validate the policy JSON.
 - `curl` when running the installer directly from a URL.
 - `sudo` to install policies under `/etc` and store backups under `/var/lib`.
 
-The installer refuses to proceed if it detects only Brave Flatpak. Flatpak runs in a sandbox, so this project does not assume that a host policy directory under `/etc/brave/policies/managed/` will be read by the Flatpak build.
+The installer checks for common native Brave package names on Arch Linux and common Brave executable names. On other distributions, make sure Brave is installed in a standard system location and its executable is available in `PATH`. Flatpak installations are not supported by this installer because the host policy directory is not guaranteed to apply inside the Flatpak sandbox.
 
 ## Installation
 
@@ -54,7 +56,7 @@ curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/m
 To install from a specific release tag, pin the script and policy source to that tag. For example, after publishing `v1.0.0`:
 
 ```bash
-OMARCHY_BRAVE_POLICY_REF=v1.0.0 bash <(curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/v1.0.0/install.sh)
+BRAVE_POLICY_REF=v1.0.0 bash <(curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/v1.0.0/install.sh)
 ```
 
 ### Install from a local clone
@@ -66,7 +68,7 @@ chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-When run from a local clone, the installer uses the adjacent `brave-policy.json`. When run through `curl | bash`, it downloads the policy JSON from this repository. Set `OMARCHY_BRAVE_POLICY_REF` to select a branch or tag for the downloaded policy.
+When run from a local clone, the installer uses the adjacent `brave-policy.json`. When run through `curl | bash`, it downloads the policy JSON from this repository. Set `BRAVE_POLICY_REF` to select a branch or tag for the downloaded policy.
 
 > **Security note:** Piping a remote script to Bash executes code from that URL. Review `install.sh` before running it if you want to inspect the changes first.
 
@@ -89,7 +91,9 @@ curl -fsSL https://raw.githubusercontent.com/slvinnm/brave-hardening-for-linux/m
 
 Or run `./uninstall.sh` from your local clone.
 
-The uninstaller removes only this project's policy file. If a file already existed at the target path before the first installation, the installer stores a copy under `/var/lib/omarchy-brave-policy/` and the uninstaller restores it.
+The uninstaller removes only this project's policy file. If a file already existed at the target path before the first installation, the installer stores a copy under `/var/lib/brave-hardening/` and the uninstaller restores it.
+
+The installer and uninstaller also recognize the previous project-specific policy and backup locations so an upgrade does not leave the old managed policy active.
 
 The scripts do not remove other policy files, do not remove non-empty directories, and do not modify your Brave profile or browsing data.
 
@@ -114,4 +118,3 @@ Then run `./install.sh` again and reload policies at `brave://policy`.
 
 - [Brave Group Policy documentation](https://support.brave.app/hc/en-us/articles/360039248271-Group-Policy)
 - [Chromium Enterprise Policy List](https://chromeenterprise.google/policies/)
-
